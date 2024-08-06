@@ -341,7 +341,12 @@ let
         cc = tools.clang-unwrapped;
         libcxx = targetLlvmLibraries.libcxx;
         extraPackages = [ targetLlvmLibraries.compiler-rt ];
-        extraBuildCommands = mkExtraBuildCommands cc;
+        extraBuildCommands =
+          mkExtraBuildCommands cc
+          + lib.optionalString (lib.versionAtLeast metadata.release_version "19") ''
+            ln -sf ${libcxx}/lib/libc++.modules.json $out/resource-root/libc++.modules.json
+            ln -sf ${libcxx}/share $out
+          '';
       };
 
       lld = callPackage ./lld {
